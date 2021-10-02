@@ -167,3 +167,208 @@
         Block replica on datanode/rack: ee71fae4fcb1/default-rack is HEALTHY
 
 У выбранного блока(blk_1073741830_1006) GS number равен 1006.
+
+
+## Блок 3. Написание map-reduce на Python
+
+1. Скачен AB_NYC_2019.csv.
+
+2. Проведен анализ в Jupyter Notebook, посчитаны среднее значение и дисперсия.
+
+> Среднее: 152.7206871868289
+>
+> Дисперсия: 57672.84569843345
+
+
+3. Поскольку задача маппера в этих задачах одинаковая - вернуть цену, то у меня получилось 3 скрипта.
+
+        Для запуска скриптов на python были изменены Dockerfile (добавлена установка Python 3.5) для nodemanager и datanode.
+        
+        Запуск скрипта для расчетов:
+        
+    ```
+    hadoop jar /opt/hadoop-3.2.1/share/hadoop/tools/lib/hadoop-streaming-3.2.1.jar -files mapper.py,reducer_mean.py -mapper "/usr/bin/python3 mapper.py" -reducer "/usr/bin/python3 reducer_mean.py" -input /data/AB_NYC_2019.csv -output /mean
+    ```
+
+
+    Результат работы:
+
+        2021-10-02 10:32:34,622 INFO mapreduce.Job: The url to track the job: http://resourcemanager:8088/proxy/application_1633170510807_0002/
+        2021-10-02 10:32:34,623 INFO mapreduce.Job: Running job: job_1633170510807_0002
+        2021-10-02 10:32:38,660 INFO mapreduce.Job: Job job_1633170510807_0002 running in uber mode : false
+        2021-10-02 10:32:38,660 INFO mapreduce.Job:  map 0% reduce 0%
+        2021-10-02 10:32:43,688 INFO mapreduce.Job:  map 50% reduce 0%
+        2021-10-02 10:32:44,691 INFO mapreduce.Job:  map 100% reduce 0%
+        2021-10-02 10:32:47,700 INFO mapreduce.Job:  map 100% reduce 100%
+        2021-10-02 10:32:47,704 INFO mapreduce.Job: Job job_1633170510807_0002 completed successfully
+        2021-10-02 10:32:47,744 INFO mapreduce.Job: Counters: 54
+            File System Counters
+                FILE: Number of bytes read=77705
+                FILE: Number of bytes written=854278
+                FILE: Number of read operations=0
+                FILE: Number of large read operations=0
+                FILE: Number of write operations=0
+                HDFS: Number of bytes read=7082245
+                HDFS: Number of bytes written=23
+                HDFS: Number of read operations=11
+                HDFS: Number of large read operations=0
+                HDFS: Number of write operations=2
+                HDFS: Number of bytes read erasure-coded=0
+            Job Counters 
+                Launched map tasks=2
+                Launched reduce tasks=1
+                Rack-local map tasks=2
+                Total time spent by all maps in occupied slots (ms)=10044
+                Total time spent by all reduces in occupied slots (ms)=10480
+                Total time spent by all map tasks (ms)=2511
+                Total time spent by all reduce tasks (ms)=1310
+                Total vcore-milliseconds taken by all map tasks=2511
+                Total vcore-milliseconds taken by all reduce tasks=1310
+                Total megabyte-milliseconds taken by all map tasks=10285056
+                Total megabyte-milliseconds taken by all reduce tasks=10731520
+            Map-Reduce Framework
+                Map input records=49081
+                Map output records=48895
+                Map output bytes=467363
+                Map output materialized bytes=78018
+                Input split bytes=176
+                Combine input records=0
+                Combine output records=0
+                Reduce input groups=1
+                Reduce shuffle bytes=78018
+                Reduce input records=48895
+                Reduce output records=1
+                Spilled Records=97790
+                Shuffled Maps =2
+                Failed Shuffles=0
+                Merged Map outputs=2
+                GC time elapsed (ms)=58
+                CPU time spent (ms)=2290
+                Physical memory (bytes) snapshot=1027244032
+                Virtual memory (bytes) snapshot=18761109504
+                Total committed heap usage (bytes)=3407872000
+                Peak Map Physical memory (bytes)=347418624
+                Peak Map Virtual memory (bytes)=5138644992
+                Peak Reduce Physical memory (bytes)=332464128
+                Peak Reduce Virtual memory (bytes)=8484130816
+            Shuffle Errors
+                BAD_ID=0
+                CONNECTION=0
+                IO_ERROR=0
+                WRONG_LENGTH=0
+                WRONG_MAP=0
+                WRONG_REDUCE=0
+            File Input Format Counters 
+                Bytes Read=7082069
+            File Output Format Counters 
+                Bytes Written=23
+        2021-10-02 10:32:47,745 INFO streaming.StreamJob: Output directory: /mean
+
+
+    Также и расчет дисперсии:
+
+```
+hadoop jar /opt/hadoop-3.2.1/share/hadoop/tools/lib/hadoop-streaming-3.2.1.jar -files mapper.py,reducer_var.py -mapper "/usr/bin/python3 mapper.py" -reducer "/usr/bin/python3 reducer_var.py" -input /data/AB_NYC_2019.csv -output /var
+```
+
+    Результат работы:
+    
+        2021-10-02 10:36:49,932 INFO impl.YarnClientImpl: Submitted application application_1633170510807_0003
+        2021-10-02 10:36:49,950 INFO mapreduce.Job: The url to track the job: http://resourcemanager:8088/proxy/application_1633170510807_0003/
+        2021-10-02 10:36:49,951 INFO mapreduce.Job: Running job: job_1633170510807_0003
+        2021-10-02 10:36:53,988 INFO mapreduce.Job: Job job_1633170510807_0003 running in uber mode : false
+        2021-10-02 10:36:53,989 INFO mapreduce.Job:  map 0% reduce 0%
+        2021-10-02 10:36:58,016 INFO mapreduce.Job:  map 50% reduce 0%
+        2021-10-02 10:36:59,020 INFO mapreduce.Job:  map 100% reduce 0%
+        2021-10-02 10:37:02,029 INFO mapreduce.Job:  map 100% reduce 100%
+        2021-10-02 10:37:02,033 INFO mapreduce.Job: Job job_1633170510807_0003 completed successfully
+        2021-10-02 10:37:02,075 INFO mapreduce.Job: Counters: 54
+            File System Counters
+                FILE: Number of bytes read=77705
+                FILE: Number of bytes written=854263
+                FILE: Number of read operations=0
+                FILE: Number of large read operations=0
+                FILE: Number of write operations=0
+                HDFS: Number of bytes read=7082245
+                HDFS: Number of bytes written=21
+                HDFS: Number of read operations=11
+                HDFS: Number of large read operations=0
+                HDFS: Number of write operations=2
+                HDFS: Number of bytes read erasure-coded=0
+            Job Counters 
+                Launched map tasks=2
+                Launched reduce tasks=1
+                Rack-local map tasks=2
+                Total time spent by all maps in occupied slots (ms)=9856
+                Total time spent by all reduces in occupied slots (ms)=9960
+                Total time spent by all map tasks (ms)=2464
+                Total time spent by all reduce tasks (ms)=1245
+                Total vcore-milliseconds taken by all map tasks=2464
+                Total vcore-milliseconds taken by all reduce tasks=1245
+                Total megabyte-milliseconds taken by all map tasks=10092544
+                Total megabyte-milliseconds taken by all reduce tasks=10199040
+            Map-Reduce Framework
+                Map input records=49081
+                Map output records=48895
+                Map output bytes=467363
+                Map output materialized bytes=78018
+                Input split bytes=176
+                Combine input records=0
+                Combine output records=0
+                Reduce input groups=1
+                Reduce shuffle bytes=78018
+                Reduce input records=48895
+                Reduce output records=1
+                Spilled Records=97790
+                Shuffled Maps =2
+                Failed Shuffles=0
+                Merged Map outputs=2
+                GC time elapsed (ms)=56
+                CPU time spent (ms)=2350
+                Physical memory (bytes) snapshot=1036443648
+                Virtual memory (bytes) snapshot=18760785920
+                Total committed heap usage (bytes)=3413639168
+                Peak Map Physical memory (bytes)=350928896
+                Peak Map Virtual memory (bytes)=5138137088
+                Peak Reduce Physical memory (bytes)=339316736
+                Peak Reduce Virtual memory (bytes)=8484737024
+            Shuffle Errors
+                BAD_ID=0
+                CONNECTION=0
+                IO_ERROR=0
+                WRONG_LENGTH=0
+                WRONG_MAP=0
+                WRONG_REDUCE=0
+            File Input Format Counters 
+                Bytes Read=7082069
+            File Output Format Counters 
+                Bytes Written=21
+        2021-10-02 10:37:02,075 INFO streaming.StreamJob: Output directory: /var
+    
+    Результат работы скриптов располагается в каталогах hdfs:/mean и hdfs:/var соответственно.
+    
+
+4. Проверим результат работы    
+    
+    Посмотрим на данные:
+    
+        root@b2a69591cf9f:/# hdfs dfs -ls /mean
+        Found 2 items
+        -rw-r--r--   3 root supergroup          0 2021-10-02 10:32 /mean/_SUCCESS
+        -rw-r--r--   3 root supergroup         21 2021-10-02 10:32 /mean/part-00000    
+
+        root@b2a69591cf9f:/# hdfs dfs -cat /mean/part-00000
+        mean	152.7206871868289
+
+    
+    
+        root@b2a69591cf9f:/# hdfs dfs -ls /var
+        Found 2 items
+        -rw-r--r--   3 root supergroup          0 2021-10-02 10:37 /var/_SUCCESS
+        -rw-r--r--   3 root supergroup         21 2021-10-02 10:37 /var/part-00000    
+
+        root@b2a69591cf9f:/# hdfs dfs -cat /var/part-00000
+        var	57672.8456984328
+
+
+    Мы видим, что рассчитанные через map-reduce данные совпадают с прямым расчетом. Для дисперсии расхождение начинается с 9го знака после запятой. Данное различие может быть вызвано различными версиями Python.
