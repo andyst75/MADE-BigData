@@ -82,28 +82,29 @@ WITH top_tags as (
     LIMIT 10
 ),
 artists as (
-    SELECT artist_lastfm, scrobbles_lastfm, tags FROM `default`.`artists`
+    SELECT artist_lastfm, scrobbles_lastfm, trim(tags) as tags FROM `default`.`artists`
     LATERAL VIEW explode(split(tags_lastfm, ";")) tags_lastfm AS tags 
     WHERE trim(tags) > "" 
 )
-SELECT artist_lastfm, scrobbles_lastfm, tags FROM artists
+SELECT artist_lastfm, scrobbles_lastfm FROM artists
 WHERE tags in (select tag from top_tags)
+GROUP BY artist_lastfm, scrobbles_lastfm
 ORDER BY scrobbles_lastfm DESC
 LIMIT 10;
 ```
 
-&nbsp; | artist_lastfm | scrobbles_lastfm | tags
------- | ------------- | ---------------- | ----
-1 | Radiohead | 499548797 | alternative
-2 | Coldplay | 360111850 | rock
-3 | Linkin Park | 294986508 | rock
-4 | Red Hot Chili Peppers | 293784041 | rock
-5 | Lady Gaga | 285469647 | pop
-6 | Lana Del Rey | 217157209 | female vocalists
-7 | Daft Punk | 209502122 | electronic
-8 | The Killers | 208722092 | indie
-9 | Britney Spears | 201961724 | pop
-10 | Rihanna | 199248986 | pop
+&nbsp; | artist_lastfm | scrobbles_lastfm
+------ | ------------- | ----------------
+1 | The Beatles | 517126254
+2 | Radiohead | 499548797
+3 | Coldplay | 360111850
+4 | Muse | 344838631
+5 | Arctic Monkeys | 332306552
+6 | Pink Floyd | 313236119
+7 | Linkin Park | 294986508
+8 | Red Hot Chili Peppers | 293784041
+9 | Lady Gaga | 285469647
+10 | Metallica | 281172228
 
 
 ### Любой другой инсайт
