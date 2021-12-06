@@ -19,18 +19,16 @@ object TfIdf {
       .option("header", "true")
       .option("inferSchema", "true")
       .csv(root + "data/tripadvisor_hotel_reviews.csv")
-      .select(regexp_replace(lower(col("Review")), "^\\w\\d ", ""))
-      .map(x => x(0).toString()
-        .replace(',', ' ')
-        .split((" "))
-        .filter(p => p.trim.nonEmpty)
-        .foldLeft(Map[String, Int]() withDefaultValue (0)) { (acc, word) => acc updated(word, acc(word) + 1) }
-      )
+      .select(regexp_replace(lower(col("Review")), "^\\w\\d ", "").as("Rewiew"))
+      .select(split(col("Rewiew"), " ").as("value"))
       .withColumn("reviewId", monotonically_increasing_id() + 1)
       .select(
         col("reviewId"),
-        explode(col("value")).as(Array("word", "count"))
+        explode(col("value")).as("word")
       )
+      .filter(col("word").notEqual(""))
+      .groupBy("reviewId", "word")
+      .count()
 
     val reviewWindow = Window.partitionBy("reviewId")
 
@@ -58,5 +56,7 @@ object TfIdf {
       .na.fill(0.0)
 
       pivotTable.show(30)
+
+    pivotTable.columns.length
   }
 }
