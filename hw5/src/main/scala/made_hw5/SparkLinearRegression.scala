@@ -35,12 +35,12 @@ object SparkLinearRegression extends App {
     .select(col("features"), col("label"))
 
   println("Start train LinearRegression")
-  val clf = new LinearRegression(spark, 1e-18, 1.0, COLS)
+  val clf = new LinearRegression(spark, 1e-14, 1.0, COLS)
   clf.fit(dfWithLabel, 100, verbose = true)
 
   println
   println("Start train LinearRegression with batches")
-  val clfBatches = new LinearRegressionBatch(spark, 1e-18, 1.0, COLS)
+  val clfBatches = new LinearRegressionBatch(spark, 1e-14, COLS)
   clfBatches.fit(dfWithLabel, 100, batchSize=1000, verbose = true)
 
 }
